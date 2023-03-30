@@ -1,0 +1,205 @@
+# swagger.yml
+
+openapi: 3.0.0
+info:
+  title: "Notes API v1"
+  description: "An API to manage notes"
+  version: "1.0.0"
+servers:
+  - url: "/api/v1"
+components:
+  schemas:
+    User:
+      type: "object"
+      required:
+        - first_name
+        - last_name
+        - email
+        - password
+      properties:
+        first_name:
+          type: "string"
+        last_name:
+          type: "string"
+        email:
+          type: "string"
+        password:
+          type: "string"
+    Credentials:
+      type: "object"
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: "string"
+        password:
+          type: "string"
+  parameters:
+    note_id:
+      name: "note_id"
+      description: "ID of the note"
+      in: path
+      required: True
+      schema:
+        type: "integer"
+paths:
+  /signup:
+    post:
+      operationId: "api.v1.auth.signup"
+      tags:
+        - Auth
+      summary: "Register a new user"
+      requestBody:
+          description: "User information"
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "user"
+                $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: "User is successfully registered"
+        "400":
+          description: "Bad request"
+        "406":
+          description: "User with this email already exists"
+  /login:
+    post:
+      operationId: "api.v1.auth.login"
+      tags:
+        - Auth
+      summary: "Login"
+      requestBody:
+        description: "Credentials"
+        required: True
+        content:
+          application/json:
+            schema:
+              x-body-name: "credentials"
+              $ref: "#/components/schemas/Credentials"
+      responses:
+        "200":
+          description: "User is successfully authorized"
+  /logout:
+    post:
+      operationId: "api.v1.auth.logout"
+      tags:
+        - Auth
+      summary: "Logout"
+      responses:
+        "204":
+          description: "User is successfully logged out"
+        "401":
+          description: "User is not logged in"
+  /notes:
+    get:
+      operationId: "api.v1.notes.read_all"
+      tags:
+        - Notes
+      summary: "List of all notes"
+      responses:
+        "200":
+          description: "List of notes is successfully read"
+        "401":
+          description: "User is not logged in"
+    post:
+      operationId: "api.v1.notes.create"
+      tags:
+        - Notes
+      summary: "Create a note associated with a person"
+      requestBody:
+          description: "Note to create"
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "note"
+                type: "object"
+                properties:
+                  content:
+                    type: "string"
+      responses:
+        "201":
+          description: "Successfully created note"
+        "401":
+          description: "User is not logged in"
+  /notes/{note_id}:
+    get:
+      operationId: "api.v1.notes.read_one"
+      tags:
+        - Notes
+      summary: "Read one note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      responses:
+        "200":
+          description: "Successfully read one note"
+        "401":
+          description: "User is not logged in"
+        "404":
+          description: "Note is not found"
+    put:
+      tags:
+        - Notes
+      operationId: "api.v1.notes.update"
+      summary: "Update a note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: "note"
+              type: "object"
+              properties:
+                content:
+                  type: "string"
+      responses:
+        "200":
+          description: "Successfully updated note"
+        "401":
+          description: "User is not logged in"
+        "403":
+          description: "Only author can change the note"
+    delete:
+      tags:
+        - Notes
+      operationId: "api.v1.notes.delete"
+      summary: "Delete a note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      responses:
+        "204":
+          description: "Note is successfully deleted"
+        "401":
+          description: "User is not logged in"
+        "403":
+          description: "Only author can delete the note"
+  /users:
+    get:
+      operationId: "api.v1.users.read_all"
+      tags:
+        - Users
+      summary: "List of all users"
+      responses:
+        "200":
+          description: "List of users is successfully read"
+        "401":
+          description: "User is not logged in"
+        "403":
+          description: "Admin permissions required"
+  /roles:
+    get:
+      operationId: "api.v1.users.get_roles"
+      tags:
+        - Users
+      summary: "List of all roles"
+      responses:
+        "200":
+          description: "List of users is successfully read"
+        "401":
+          description: "User is not logged in"
+        "403":
+          description: "Admin permissions required"
