@@ -54,16 +54,18 @@ VALUES (
 );
 
 -- Add two notes to the new user
-INSERT INTO notes.note (user_id, content, created)
+INSERT INTO notes.note (user_id, content, created, modified)
 VALUES
 (
     (SELECT id FROM notes.user WHERE email = 'admin@mail.com'),
     'First Note',
+    current_timestamp,
     current_timestamp
 ),
 (
     (SELECT id FROM notes.user WHERE email = 'admin@mail.com'),
     'Second Note',
+    current_timestamp,
     current_timestamp
 );
 

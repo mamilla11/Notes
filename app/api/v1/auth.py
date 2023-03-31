@@ -9,7 +9,7 @@ from flask_principal import (
     identity_changed
 )
 
-from extensions import db
+from extensions import db, cache
 from models import Role, User, user_schema
 
 
@@ -38,6 +38,7 @@ def signup(user):
 
     db.session.add(new_user)
     db.session.commit()
+    cache.delete('users')
 
     created_user = User.query.filter_by(id=new_user.id).first()
     role = Role.query.filter_by(name='user').first()

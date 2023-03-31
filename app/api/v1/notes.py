@@ -1,7 +1,8 @@
 from flask import abort, make_response
+from sqlalchemy import desc
 from flask_login import login_required, current_user
 
-from extensions import db
+from extensions import db, cache
 from permissions import EditNotePermission
 from models import (
     Note,
@@ -11,8 +12,9 @@ from models import (
 
 
 @login_required
+@cache.cached(timeout=60, key_prefix='notes')
 def read_all():
-    notes = Note.query.all()
+    notes = Note.query.order_by(desc(Note.modified))
     return notes_schema.dump(notes)
 
 
@@ -32,6 +34,7 @@ def create(note):
     new_note = note_schema.load(note, session=db.session)
     db.session.add(new_note)
     db.session.commit()
+    cache.delete('notes')
     return note_schema.dump(new_note), 201
 
 
@@ -51,6 +54,7 @@ def update(note_id, note):
     existing_note.content = update_note.content
     db.session.merge(existing_note)
     db.session.commit()
+    cache.delete('notes')
     return note_schema.dump(existing_note), 200
 
 

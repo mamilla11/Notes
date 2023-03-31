@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from models import User
 from extensions import init_extensions, login_manager
 from permissions import init_permissions
-from flask import request
+from flask import request, render_template
 
 
 load_dotenv()
@@ -47,7 +47,7 @@ def load_user(user_id: str):
 
 @connex_app.route('/')
 def home():
-    return f'Notes Home Page at {request.url_root}'
+    return render_template('home.html')
 
 if __name__ == '__main__':
     app.run()

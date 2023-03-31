@@ -1,6 +1,7 @@
 from flask import abort
 from flask_login import login_required
 
+from extensions import cache
 from permissions import admin_permission
 from models import (
     User,
@@ -11,6 +12,7 @@ from models import (
 
 
 @login_required
+@cache.cached(timeout=60, key_prefix='users')
 def read_all():
     if not admin_permission.can():
         abort(403, f'Not authorized to get user information')
